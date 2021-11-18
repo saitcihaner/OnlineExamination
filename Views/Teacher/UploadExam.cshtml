@@ -1,0 +1,341 @@
+﻿@inject OnlineExamination.DAL.OnlineExaminationContext aa
+@{
+
+
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    var claimIdentity = User.Identity as System.Security.Claims.ClaimsIdentity;
+
+    var Email = claimIdentity.FindFirst(System.Security.Claims.ClaimTypes.Email).Value;
+    var TeacherInformation = aa.TeacherInformation.First(x => x.EmailAddress == Email);
+    
+
+
+}
+@section Css{
+
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+}
+<div class="card">
+    <div class="card-header ">
+        <h3 class="text-center ">Welcome to the easiest upload exam page</h3>
+    </div>
+    <div class="row">
+
+
+
+        <h2 class="text-center">Exam Attributes</h2>
+        <div class="card-body col-md-3">
+            <h5 class="card-title">Exam Name</h5>
+            <p class="card-text">Exam Name for your Student see</p>
+          <select id="selectName" class="form-select">
+              <option value="" selected>Choose</option>
+              <option value="MidTermExam">Midterm-Exam</option>
+              <option value="Quiz">Quiz</option>
+              <option value="Final Exam">Final Exam</option>
+          </select>
+        </div>
+        <div class="card-body col-md-3">
+            <h5 class="card-title">Exam Start Date</h5>
+            <p class="card-text">Your students can see  their exam when you set the startdate</p>
+            <p class="col-md-3">Start Date:<input type="text" id="startDate" class="form-control " style="width:250px" /></p>
+        </div>
+        <div class="card-body col-md-3">
+            <h5 class="card-title">Exam FinishDate</h5>
+            <p class="card-text">Your students can see their exam until finish time which is set</p>
+            <p class="col-md-3">Finish Date:<input type="text" id="finishDate" class="form-control " /></p>
+        </div>
+        <div class="card-body col-md-3">
+            <h5 class="card-title">Exam Time</h5>
+            <p class="card-text">Your students must solve their exam in this time otherwise their exam is not be valid</p>
+            <p> Hours and Minutes: <input type="time" id="examTime" step="3600000" class="form-control " /></p>
+        </div>
+    </div>
+
+</div>
+
+<div class="card">
+
+    <div class="row">
+
+
+
+        <h2 class="text-center">Exam Attributes</h2>
+        <div class="card-body col-md-4">
+            <h5 class="card-title">Exam Branch</h5>
+            <p class="card-text">Your Branch</p>
+            <select class="form-select" aria-label="Disabled select example" disabled id="teacherBranch">
+                <option value="@TeacherInformation.TeacherBranch" selected>@TeacherInformation.TeacherBranch</option>
+
+            </select>
+        </div>
+        <div class="card-body col-md-4">
+            <h5 class="card-title">Exam Classes</h5>
+            <p class="card-text">Choose which class do you wanna upload</p>
+            <select class="form-select" id="classRoomNumber">
+                @{
+                    <option value="@TeacherInformation.ClassRoomNumber_1">@TeacherInformation.ClassRoomNumber_1.</option>
+                    <option value="@TeacherInformation.ClassRoomNumber_2">@TeacherInformation.ClassRoomNumber_2.</option>
+                    <option value="@TeacherInformation.ClassRoomNumber_3">@TeacherInformation.ClassRoomNumber_3.</option>
+                    <option value="@TeacherInformation.ClassRoomNumber_4">@TeacherInformation.ClassRoomNumber_4.</option>
+                }
+
+            </select>
+        </div>
+        <div class="card-body col-md-4">
+            <h5 class="card-title">ClassRoomCode</h5>
+
+
+            <form>
+                @{
+                    if (TeacherInformation.ClassRoomCode_1 != null)
+                    {
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="checkbox1" value="@TeacherInformation.ClassRoomCode_1">@TeacherInformation.ClassRoomCode_1
+                        </label>
+                    }
+                    if (TeacherInformation.ClassRoomCode_2 != null)
+                    {
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="checkbox1" value="@TeacherInformation.ClassRoomCode_2">@TeacherInformation.ClassRoomCode_2
+                        </label>
+                    }
+
+
+                    if (TeacherInformation.ClassRoomCode_3 != null)
+                    {
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="checkbox1" value="@TeacherInformation.ClassRoomCode_3">@TeacherInformation.ClassRoomCode_3
+                        </label>
+                    }
+                    if (TeacherInformation.ClassRoomCode_4 != null)
+                    {
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="checkbox1" value="@TeacherInformation.ClassRoomCode_4">@TeacherInformation.ClassRoomCode_4
+                        </label>
+                    }
+
+                }
+
+            </form>
+        </div>
+
+
+    </div>
+
+</div>
+<div class="card">
+
+    <div class="row">
+
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Example Excel File</h5>
+                        <button type="button" class="btn-close" data-dismiss="modal">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-danger">Dear Teacher</p>
+                        <br />
+                        <p>This is a example excel download file.When you download the file you will see some coloumn names with custom values.</p>
+                        <br />
+                        <p>In that point,you <span style="color:red">should not </span> change the rows name otherwise you will get error message</p>
+                        <br />
+                        <p>You need to do just add your values as you prepare.</p>
+                        <br />
+                        <p>We hope that you like this system.</p>
+                        <br />
+                        <p>Thanks for attention...</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card-body col-md-6">
+            <h5 class="card-title">Upload Your Exam</h5>
+            <p class="card-text">You can upload your exam</p>
+            <input type="file" id="excelFile" placeholder="Please choose your file to add as exam" />
+            <button class="btn btn-warning" onclick="LoadTheExam()">Import Excel</button>
+        </div>
+
+
+
+        <div class="card-body col-md-6">
+            <h5 class="card-title"> Download Example File</h5>
+            <p class="card-text">You can see example Excel File</p>
+            <div class="row">
+                <div class="col-md-2">
+                    <a data-toggle="modal" data-target="#exampleModalCenter"><i class="fas fa-chalkboard-teacher"></i><span>Read the instruction</span> </a>
+                </div>
+                <div class="col-md-2">
+                    @using (Html.BeginForm("ExportExcel", "File", FormMethod.Post))
+                    {
+                        <button class="btn btn-success" type="submit">DownloadExcelFile</button>
+
+                    }
+
+                </div>
+
+            </div>
+
+
+
+
+
+        </div>
+
+    </div>
+
+</div>
+<div>
+    <button class="btn btn-danger offset-5 mt-5" onclick="Finish1()" style="width:150px">Ok</button>
+</div>
+
+
+
+@section Scripts{
+
+
+   @*DatePicker*@
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
+    <script>
+    
+        $("#startDate").datepicker();
+        $("#finishDate").datepicker();
+
+        var datetime = "";
+        function LoadTheExam() {
+            if (window.FormData !== undefined) {
+
+                var fileUpload = $("#excelFile").get(0);
+                var files = fileUpload.files;
+
+                // Create FormData object
+                var fileData = new FormData();
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append(@ViewBag.SchoolNumber, files[i]);
+                }
+             
+                $.ajax({
+                    url: "/File/ImportExcel",
+                    type: "POST",
+                    data: fileData,
+                   
+                    contentType: false, // Not to set any content header
+                    processData: false,
+                    success: function (res) {
+                        if (res.status) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thank you',
+                                text: res.message,
+
+                            })
+
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text:res.message,
+
+                            })
+                        }
+                    
+                       
+                    },
+                    complete: function (data) {
+                        $('#excelFile')[0].reset()
+                    }
+
+                })
+            }
+        }
+
+
+    </script>
+    <script>
+        function Finish1() {
+
+            if ($("#selectname options:selected").val() == "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text:"Choose Exam Name",
+
+                })
+                return
+            }
+
+            if ($("#finishDate").val() < $("#startDate").val()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: "Finish date must be bigger than start date",
+
+                })
+                return
+            }
+
+            var classCode_1;
+            var classCode_2;
+            var classCode_3;
+            var classCode_4;
+
+            if ($('#checkbox1').is(':checked')) {
+                classCode_1 = $("#checkbox1").val()
+            }
+            if ($('#checkbox2').is(':checked')) {
+                classCode_2 = $("#checkbox2").val()
+            }
+            if ($('#checkbox3').is(':checked')) {
+                classCode_3 = $("#checkbox3").val()
+            }
+            if ($('#checkbox4').is(':checked')) {
+                classCode_4 = $("#checkbox4").val()
+            }
+
+            var data = {
+                "ExamName": $("#selectname options:selected").val(),
+                "ExamBranch": $("#teacherBranch option:selected").text(),
+                "ExamTeacherNumber":@ViewBag.SchoolNumber,
+                "Exam_ClassroomNumber": $("#classRoomNumber option:selected").text().replace(".",""),
+                "Exam_ClassroomCode_1": classCode_1,
+                "Exam_ClassroomCode_2": classCode_2,
+                "Exam_ClassroomCode_3": classCode_3,
+                "Exam_ClassroomCode_4": classCode_4,
+                "ExamStartDate": $("#startDate").val(),
+                "ExamTime": $("#examTime").val(),
+                "ExamFinishDate": $("#finishDate").val(),
+             
+            }
+            $.ajax({
+                url: "/Teacher/SaveExam",
+                type: "POST",
+                dataType: "Json",
+                data: data,
+                success: function () {
+                    alert("Başarılı")
+                }
+
+            })
+        }
+
+    </script>
+
+
+}
+

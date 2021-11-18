@@ -1,0 +1,312 @@
+﻿@{
+    ViewData["Title"] = "MainPage";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+@section Css{
+<style>
+    #myProgress {
+    width: 40%;
+    background-color: #ddd;
+    }
+
+    #myBar {
+    width: 0%;
+    height: 30px;
+    background-color: #04AA6D;
+    text-align: center;
+    line-height: 30px;
+    color: white;
+    }
+
+       </style>
+}
+<div class="container" id="callExamDiv">
+    <div class="card">
+        <div class="card-header">
+            Exam List
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered" id="mainTable">
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Exam Branch</th>
+
+                    <th>Finish Date</th>
+                    <th>Time experession</th>
+                    <th>Start To Solve the exam</th>
+                </tr>
+                <tbody id="examTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<div class="container mt-5" id="examDiv">
+    <div class="d-flex justify-content-center row">
+        <div class="col-md-10 col-lg-10">
+            <div class="border">
+                <div class="question bg-white p-3 border-bottom">
+                    <div class="d-flex flex-row justify-content-between align-items-center mcq">
+                        <h4>MCQ Quiz</h4><span id="questionNumber"></span>
+                        <div id="myProgress">
+                            <div id="myBar">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question bg-white p-3 border-bottom">
+                    <div class="d-flex flex-row align-items-center question-title">
+                        <h3 class="text-danger">Q.</h3>
+                        <h5 class="mt-1 ml-2" id="question"></h5>
+                    </div>
+                    <div class="ans ml-2">
+                        <label class="radio">
+                            <input type="radio" name="radio" value="" id="answer1."> <span id="answer1"></span>
+                        </label>
+                    </div>
+                    <div class="ans ml-2">
+                        <label class="radio">
+                            <input type="radio" name="radio" value=""id="answer2."> <span id="answer2"></span>
+                        </label>
+                    </div>
+                    <div class="ans ml-2">
+                        <label class="radio">
+                            <input type="radio" name="radio" value="" id="answer3."> <span id="answer3"></span>
+                        </label>
+                    </div>
+                    <div class="ans ml-2">
+                        <label class="radio">
+                            <input type="radio" name="radio" value=""id="answer4."> <span id="answer4"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="d-flex flex-row justify-content-between align-items-center p-3 bg-white" id="buttonDiv">
+                    <button class="btn btn-primary d-flex align-items-center btn-danger" id="previousButton" onclick="PreviousQuestion()" type="button"><i class="fa fa-angle-left mt-1 mr-1"></i>&nbsp;previous</button><button class="btn btn-primary border-success align-items-center btn-success" id="nextButton" onclick="NextQuestion()" type="button">Next<i class="fa fa-angle-right ml-2"></i></button>
+                    <button class="btn btn-primary border-success align-items-center btn-warning" id="finishButton" onclick="FinishExam()" type="button">Finish<i class="fa fa-angle-right ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/Helpers/TimeConvert.js"></script>
+    <script></script>
+    <script>
+        $("#examDiv").hide()
+        var Exam = [];
+        var answerList = [];
+        var i =0
+        var questionNumber = 0;
+                function GetData(sayı) {
+
+                    var button = $("button[name ='" + sayı + "']")
+                    var item = button.closest("tr")
+                    var teacherNumber = item.find("td:eq(0)").html()
+                    var enterTime = item.find("td:eq(1)").html()
+                    var ExamTime = item.find("td:eq(2)").html()
+                    console.log(ExamTime)
+                    data = {
+                        "EnterTime": enterTime,
+                        "TeacherNumber":teacherNumber
+                    }
+
+        $.ajax({
+                        url: "/Student/StudentExam",
+                        method: "GET",
+                        data: data,
+            dataType: "JSON",
+            success: function (res) {
+                $("#callExamDiv").hide()
+                $("#examDiv").show()
+                $("input[name=radio]").val()
+                
+                $("#finishButton").hide()
+                Exam = res;
+                $.each(Exam, function (i, item) {
+                    $("#question").html(Exam[questionNumber].question)
+                    $("#answer1").html(Exam[questionNumber].wrongAnswer_1)
+                    $('#answer1').attr('checked')==false
+                    $("#answer2").html(Exam[questionNumber].wrongAnswer_2)
+                        $('#answer2').attr('checked') == false
+                    $("#answer3").html(Exam[questionNumber].wrongAnswer_3)
+                        $('#answer3').attr('checked') == false
+                    $("#answer4").html(Exam[questionNumber].rightAnswer)
+                        $('#answer4').attr('checked') == false
+                    $("#questionNumber").html(Exam[questionNumber].questionNumber + ".Question")
+                    $("#previousButton").attr("disabled", 'disabled')
+                })
+                console.log($('#answer1').attr('checked'))
+                console.log($('#answer2').attr('checked'))
+                console.log($('#answer3').attr('checked'))
+                console.log($('#answer4').attr('checked'))
+
+                if (i == 0) {
+                    i = 1;
+                    var elem = document.getElementById("myBar");
+                    var width = 0;
+                    var id = setInterval(frame, 1000
+                    );
+                    function frame() {
+                        if (width >= 100) {
+                            clearInterval(id);
+                            i = 0;
+                             var data = {
+                "TeacherNumber": Exam[0].teacherNumber,
+                "ExamEnteredDate": Exam[0].examEnteredDate,
+                "StudentNumber":@ViewBag.UserId,
+                "answerList": answerList
+            }
+            $.ajax({
+                url: "/Student/ExamResult",
+                data: data,
+                method: "POST",
+                dataType: "JSON",
+                success: function (res) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thank You....',
+                            text: "sagolun",
+                            timer: 3000
+                        })
+
+
+                    window.location.href="/Student/ExamList"
+                }
+
+            })
+                        } else {
+                            width = width + (100 / ExamTime)
+                            console.log(width)
+                            elem.style.width = width + "%";
+
+                            elem.innerHTML = width + "%";
+                        }
+                    }
+                }
+            }
+                    })
+    }
+
+    getExamTable()
+
+    function getExamTable() {
+        data = {
+            "SchoolNumber":"@(ViewBag.UserId)"
+        }
+        $.ajax({
+            url: "/Student/ExamList",
+            data:data,
+            method: "POST",
+            success: function (res) {
+                $.each(res, function (i, item) {
+                    console.log(TransformJSDatetime(item.examFinishDate))
+                    console.log(item.examTime.hours * 3600 + item.examTime.minutes*60)
+                    console.log(TransformJSDatetime(new Date()))
+
+                    $("#examTableBody").append("<tr><td hidden>" + item.examTeacherNumber + "</td><td hidden>" + item.examEnteredTime + "</td><td hidden>" +( item.examTime.hours * 3600 + item.examTime.minutes * 60)+"</td><td>" + item.examName + "</td><td>" + item.examBranch + "</td> <td>" + TransformJSDatetime(item.examFinishDate) + "</td> <td>" + item.examTime.hours + "hours" + " " + item.examTime.minutes + "minutes" + "</td> <td ><button name='" + i + "'  class='btn btn-success' onclick=GetData(" + i + ")  > Start the Exam</button ></td ></tr > ")
+
+
+
+                })
+
+            }
+        })
+        }
+
+        function NextQuestion() {
+            //$("input").attr("name",questionNumber)
+            if ($("input[name=radio]:checked").next().html() != null) {
+                answerList[questionNumber] = $("input[name=radio]:checked").next().html()
+            }
+            else {
+                answerList[questionNumber]="null"
+            }
+
+            console.log(answerList)
+            questionNumber = questionNumber + 1;
+            console.log(questionNumber)
+            $("#question").html(Exam[questionNumber].question)
+            $("#answer1").html(Exam[questionNumber].wrongAnswer_1)
+         
+            $("#answer2").html(Exam[questionNumber].wrongAnswer_2)
+           
+            $("#answer3").html(Exam[questionNumber].wrongAnswer_3)
+          
+            $("#answer4").html(Exam[questionNumber].rightAnswer)
+           
+            $("#questionNumber").html(Exam[questionNumber].questionNumber + ".Question")
+
+                $("#previousButton").prop('disabled', false)
+
+            if (questionNumber  == Exam.length-1) {
+                $("#nextButton").hide()
+                $("#finishButton").show()
+
+            }
+
+        }
+
+        function PreviousQuestion() {
+
+            questionNumber = questionNumber - 1;
+            console.log(questionNumber)
+            $("#question").html(Exam[questionNumber].question)
+            $("#answer1").html(Exam[questionNumber].wrongAnswer_1)
+           
+            $("#answer2").html(Exam[questionNumber].wrongAnswer_2)
+           
+            $("#answer3").html(Exam[questionNumber].wrongAnswer_3)
+         
+            $("#answer4").html(Exam[questionNumber].rightAnswer)
+            $
+            $("#questionNumber").html(Exam[questionNumber].questionNumber + ".Question")
+            if (questionNumber == 0) {
+                $("#previousButton").prop('disabled', true)
+            }
+            else {
+                $("#previousButton").prop('disabled',false)
+            }
+            $("#nextButton").show()
+            $("#finishButton").hide()
+            $("#nextButton").prop('disabled', false)
+        }
+        function FinishExam() {
+            if ($("input[name=radio]:checked").next().html() != null) {
+                answerList[questionNumber] = $("input[name=radio]:checked").next().html()
+            }
+            else {
+                answerList[questionNumber] = "null"
+            }
+            var data = {
+                "TeacherNumber": Exam[0].teacherNumber,
+                "ExamEnteredDate": Exam[0].examEnteredDate,
+                "StudentNumber":@ViewBag.UserId,
+                "answerList": answerList
+            }
+            $.ajax({
+                url: "/Student/ExamResult",
+                data: data,
+                method: "POST",
+                dataType: "JSON",
+                success: function (res) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thank You....',
+                            text: "sagolun",
+                            timer: 3000
+                        })
+
+
+                    window.location.href="/Student/ExamList"
+                }
+
+            })
+
+
+        }
+    </script>
+}
+

@@ -1,0 +1,206 @@
+﻿
+
+@{
+
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Dashboard</li>
+    </ol>
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">Your Last Login Time</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <p class="small text-white stretched-link" id="loginTime"></p>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">"Your Position</div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <p class="small text-white stretched-link" id="warning"></p>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6" id="success">
+            @*<div class="card bg-success text-white mb-4" hidden>
+                    <div class="card-body">You read all messsages from your student</div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+
+                    </div>
+                </div>*@
+        </div>
+        <div class="col-xl-3 col-md-6" id="notsuccess">
+
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header ">
+            <div class="row">
+
+
+
+                <p class="col-md-1">Choose Your   Classroom</p>
+
+
+                <div class="col-md-2">
+                    <select class="form-select  " id="studentSelect">
+                        <option value="" hidden>ClassRoom</option>
+                        @foreach (var item in Model)
+                        {
+                            <option value="@(item.ClassRoomNumber)/@(item.ClassRoomCode)">@(item.ClassRoomNumber)/@(item.ClassRoomCode)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <button class="btn btn-success " onclick="getStudent()" style="min-width:180px">Search</button>
+                </div>
+
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="text-center">
+
+                    <i class="fas fa-table me-1"></i>
+                    Your Student List
+                </div>
+
+            </div>
+            <div class="card-body">
+                <table id="example" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>StudentFirstName</th>
+                            <th>StudentLastName</th>
+                            <th>StudentNumber</th>
+                            <th>ClassRoom</th>
+                            <th>Email</th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+
+
+        var role = "@ViewBag.Role"
+        $("#warning").html(role.toUpperCase())
+
+
+
+        getBasicInformation()
+        function getBasicInformation() {
+            var today = new Date();
+            var date = today.getFullYear() + '.' + (today.getMonth() + 1) + '.' + today.getDate();
+            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+            var dateTime = date + ' ' + time;
+            var data = {
+                "UserEmail": "@ViewBag.Email",
+                "EnteredTime":dateTime
+            }
+            $.ajax({
+                url: "/Teacher/BasicInformation",
+                data: data,
+                type: "POST",
+                success: function (res) {
+                    $("#loginTime").html(res.loginTime)
+
+                    if (res.unreadedMessageCount != 0) {
+                        $("#success").html("<div class='card bg-danger text-white mb-4'>" +
+                            "<div class='card-body' >Your Unreaded Messages</div >" +
+                            "<div class='card-footer d-flex align-items-center justify-content-between'>" +
+                            "<p class='small text-white stretched-link' >You have <span id='unReadedMessageCount'></span> messages to read</p>" +
+
+                            " </div>" +
+                            "</div >")
+                        $("#unReadedMessageCount").html(res.unreadedMessageCount)
+                    }
+                    else {
+                        $("#success").html("<div class='card bg-success text-white mb-4'>" +
+                            "<div class='card-body' >Congrulations </div >" +
+                            "<div class='card-footer d-flex align-items-center justify-content-between'>" +
+                            "<p class='small text-white stretched-link' >You read all messages from your student</p>" +
+
+                            " </div>" +
+                            "</div >")
+                    }
+                }
+
+            })
+        }
+
+            console.log(word)
+            $("#datatablesSimple").hide()
+            var classRoomNumber = word[0]
+            var classRoomCode = word[1]
+            console.log(classRoomNumber)
+            console.log(classRoomCode)
+            function getStudent() {
+
+                var word = $("#studentSelect option:selected").val().split("/")
+                var classRoomNumber = word[0]
+                var classRoomCode = word[1]
+                console.log(classRoomNumber)
+                console.log(classRoomCode)
+                var data = {
+                    "ClassRoomNumber": classRoomNumber,
+                    "ClassRoomCode": classRoomCode
+                }
+                $.ajax({
+                    url: "/Teacher/GetStudentList",
+                    data: data,
+                    dataType: "JSON",
+                    success: function (res) {
+                        $("#example").DataTable().clear().destroy()
+
+                        $.each(res, function (i, item) {
+                            //$("#tableBody").append("<tr><td>" +  + "</td><td>" + item.studentLastName + "</td><td>" + item.studentNumber + "</td><td>" + item.classRoomCode + "</td><td>" + item.emailAdress + "</td></tr>")
+                            var body = "<tr>";
+                            body += "<td>" + item.studentFirstName + "</td>";
+                            body += "<td>" + item.studentLastName + "</td>";
+                            body += "<td>" + item.studentNumber + "</td>";
+                            body += "<td>" + item.classRoomCode + "</td>";
+                            body += "<td>" + item.emailAdress + "</td>";
+
+                            body += "</tr>";
+                            $("#example tbody").append(body);
+                        });
+                        /*DataTables instantiation.*/
+                        $("#example").DataTable({
+                            "info": false,
+                            "paging":false,
+                        });
+
+                    }
+
+                })
+
+            }
+    </script>
+}
+
+

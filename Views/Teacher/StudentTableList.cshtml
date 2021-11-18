@@ -1,0 +1,74 @@
+﻿@model IEnumerable<OnlineExamination.Models.ClassRoomList>
+@{
+    ViewData["Title"] = "StudentTableList";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-select  " id="studentSelect">
+                   @foreach (var item in Model)
+                   {
+                    <option value="@(item.ClassRoomNumber)/@(item.ClassRoomCode)">@(item.ClassRoomNumber)/@(item.ClassRoomCode)</option>
+                   }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-success " onclick="getStudent()">Search</button>
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+    <div class="card-body">
+
+        <table id="datatablesSimple">
+            <thead>
+                <tr>
+                    <th>FirstName</th>
+                    <th>LastName</th>
+                    <th>StudentNumber</th>
+                    <th>ClassRoom</th>
+                    <th>EmailAdress</th>
+
+                </tr>
+            </thead>
+
+           
+
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        var word = $("#studentSelect option:selected").text().split("/")
+       console.log(word)
+        $("#datatablesSimple").hide()
+        var classRoomNumber = word[0]
+        var classRoomCode = word[1]
+        console.log(classRoomNumber)
+        console.log(classRoomCode)
+        function getStudent() {
+            var word = ("#studentSelect option:selected").text().split("/")
+            var classRoomNumber = word[0]
+            var classRoomCode = word[1]
+            console.log(classRoomNumber)
+            console.log(classRoomCode)
+            var data = {
+                "ClassRoomNumber": classRoomNumber,
+                "ClassRoomCode": classRoomCode
+            }
+
+        }
+    </script>
+
+
+ } 

@@ -1,0 +1,170 @@
+﻿@model IEnumerable<OnlineExamination.Models.ClassRoomList>
+@inject OnlineExamination.DAL.OnlineExaminationContext aa
+@{
+    ViewData["Title"] = "ExamResult";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    var claimIdentity = User.Identity as System.Security.Claims.ClaimsIdentity;
+
+    var Email = claimIdentity.FindFirst(System.Security.Claims.ClaimTypes.Email).Value;
+    var TeacherInformation = aa.TeacherInformation.First(x => x.EmailAddress == Email);
+}
+@section Css{
+
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            Student Exam Result
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">
+                You can search your student result with one or more than one filter
+            </h4>
+            <div class="row">
+                <div class="col-md-2 mt-0">
+                    Exam Name:
+                    <select class="form-select" id="examNameSelect">
+                        <option value="test">hi</option>
+                        <option value="A">A</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <p>Start Date:<input type="text" id="startDate" class="form-control " style="width:250px" /></p>
+                </div>
+                <div class="col-md-3">
+                    <p>Finish Date:<input type="text" id="finishDate" class="form-control " style="width:250px" /></p>
+                </div>
+
+                <div class="col-md-2 mt-0">
+                    ClassRoom:
+                    <select class="form-select  " id="classRoomSelect">
+                        @foreach (var item in Model)
+                        {
+                            <option value="@(item.ClassRoomNumber)/@(item.ClassRoomCode)">@(item.ClassRoomNumber)/@(item.ClassRoomCode)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 mt-4">
+                    <button class="btn btn-primary" onclick="GetExamResults()">Search Results</button>
+                </div>
+
+
+            </div>
+
+
+            <div>
+                <table id="multipleExamTable" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Exam Name</th>
+                            <th>Exam StartDate</th>
+                            <th>Exam FinishDate</th>
+                            <th></th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="multipleExamBody">
+                    </tbody>
+                </table>
+            </div>
+            <div id="canvasId">
+                <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+   
+    <script>
+        function GetExamResulta(_date) {
+            alert(_date)
+            var data = { "Mi": _date, "ki": _date }
+            $.ajax({
+                URL: "/Teacher/Geto",
+                data: data,
+                method: "POST",
+                dataType:"JSON"
+
+            })
+        }
+
+        $("#multipleExamTable").hide()
+        $("#canvasId").hide()
+        $("#startDate").datepicker();
+        $("#finishDate").datepicker();
+     function GetExamResults() {
+         console.log($("#startDate").val());
+        
+         console.log()
+        
+            var data = {
+                "ExamName": $("#examNameSelect option:selected").val(),
+                "ClassRoom": $("#classRoomSelect option:selected").val(),
+                "StartDate":$("#startDate").val(),
+                "FinishDate": $("#finishDate").val(),
+                 "Branch":"@TeacherInformation.TeacherBranch"
+            }
+            $.ajax({
+                url: "/Teacher/ExamResult",
+                method: "POST",
+                dataType: "JSON",
+                data: data,
+                success: function (res) {
+                    $.each(res, function (i, item) {
+                        var a = TransformJSDatetime(item.examEnteredTime)
+                        console.log(a)
+                        $("#multipleExamBody").append("<tr><td name='" + item.examEnteredTime + "'>" + item.examEnteredTime + "</td><td><button class='btn btn-primary' onclick=GetExamResulta(" +a+")></button ></td ></tr > ")
+                    })
+                    $("#multipleExamTable").show()
+
+                    
+                    //if (res[0].studentNumber != null) {
+                    //    console.log(res)
+                    //    $("#canvasId").show()
+                    //    var xValues = []
+                    //    var yValues = []
+                    //    var barColors = []
+                    //    $.each(res, function (i, item) {
+                    //        xValues.push(item.studentName)
+                    //        yValues.push(item.studentResult)
+                    //        barColors.push("blue")
+                    //    })
+                    //    new Chart("myChart", {
+                    //        type: "bar",
+                    //        data: {
+                    //            labels: xValues,
+                    //            datasets: [{
+                    //                backgroundColor: barColors,
+                    //                data: yValues
+                    //            }]
+                    //        },
+                    //        options: {
+                    //            legend: { display: false },
+                    //            title: {
+                    //                display: true,
+                    //                text: "Student Exam Result"
+                    //            }
+                    //        }
+                    //    });
+                    //}
+                    //else {
+                    //    $.each(res, function (i,item) {
+                    //        $("#multipleExamBody").append("<tr><td>item.examEnteredDate</td></tr>")
+                    //    })
+                      
+                    //}
+                }
+            })
+        }
+    </script>
+}

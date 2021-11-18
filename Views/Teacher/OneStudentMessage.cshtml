@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewData["Title"] = "OneStudentMessage";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+@section Css{
+
+}
+
+
+<div class="container">
+    <div class="card">
+        <div class="card-header" style="border-color:green">
+            <p class="text-center">Send Message to your Student</p>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label"> StudentNumber (You can find studentNumber in ClassRoom List)</label>
+                <input type="text" class="form-control" id="studentNumber" placeholder="">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Student FirstName</label>
+                <input type="email" class="form-control" id="studentFirstName" placeholder="" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Student LastName</label>
+                <input type="email" class="form-control" id="studentLastName" placeholder="" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">StudentClass</label>
+                <input type="email" class="form-control" id="studentClass" placeholder="" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">StudentEmailAdress</label>
+                <input type="email" class="form-control" id="studentEmail" placeholder="" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Enter Your Message</label>
+                <textarea class="form-control" id="message" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-success" onclick="sendMessage()">Send Your Message</button>
+            </div>
+        </div>
+    </div>
+    <div class="spinner-border text-primary" role="status" hidden id="spin">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+@section Scripts{
+<script src="~/js/Helpers/TimeConvert.js"></script>
+    <script>
+
+
+        $("#studentNumber").change(function () {
+
+            if ($("#studentNumber").length == 1 && $("#studentNumber").val() > 0) {
+                console.log("BURAyı geçtytin")
+                var data = {
+                    "StudentNumber": $("#studentNumber").val()
+                }
+                $.ajax({
+                    url: "/Teacher/GetStudentInformationList",
+                    data: data,
+                    dataType: "JSON",
+                    method: "POST",
+                    beforeSend: function () {
+                        $("#spin").show()
+                    },
+                    
+                    success: function (res) {
+                        $("#spin").hide()
+                        $("#studentFirstName").val(res.studentFirstName),
+                            $("#studentLastName").val(res.studentLastName),
+                            $("#studentEmail").val(res.emailAdress),
+                            $("#studentClass").val(res.classRoomCode)
+                    }
+
+                })
+            }
+        })
+
+        function sendMessage() {
+            var messagedata = {
+                "TeacherEmail":"@(ViewBag.Email)",
+                "MessageSentTime": ConvertToDateTime(),
+                "ToWhichStudent": $("#studentEmail").val(),
+                "Message": $("#message").val(),
+                "IsRead":"false"
+            }
+            $.ajax({
+                url: "/Teacher/FillTeacherMessageTable",
+                method: "POST",
+                dataType: "json",
+                data: messagedata,
+                beforeSend: function () {
+                    $("#spin").show()
+                },
+                success: function (res) {
+                    $("#spin").hide()
+                    if (res.status) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thank You....',
+                            text: res.message,
+
+                        })
+                        window.location.href = "/Teacher/MainPage"
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Opss....',
+                            text: res.message,
+
+                        })
+                    }
+                }
+            })
+        }
+
+    </script>
+
+
+}

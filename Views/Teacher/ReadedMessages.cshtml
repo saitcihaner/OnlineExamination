@@ -1,0 +1,103 @@
+﻿@inject OnlineExamination.DAL.OnlineExaminationContext aa
+@{
+    ViewData["Title"] = "Messages";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    var claimIdentity = User.Identity as System.Security.Claims.ClaimsIdentity;
+
+    var Email = claimIdentity.FindFirst(System.Security.Claims.ClaimTypes.Email).Value;
+    var TeacherInformation = aa.TeacherInformation.First(x => x.EmailAddress == Email);
+}
+
+<div class="container">
+    @section Css{
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />    }
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Student Name</th>
+                <th scope="col">Student Number</th>
+                <th scope="col">Student Class</th>
+                <th scope="col">Send Date</th>
+                
+                <th scope="col">Status</th>
+
+            </tr>
+        </thead>
+        <tbody id="messageTableBody">
+        </tbody>
+    </table>
+   
+
+    <div class="modal fade" id="message" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="messageText">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="getMessageList()" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+        getMessageList()
+       
+
+       
+
+            function getMessageList() {
+                var data = {
+                    "TeacherEMail": "@TeacherInformation.EmailAddress"
+                }
+                var today = new Date();
+                var year = today.getFullYear();
+                console.log(year)
+                $.ajax({
+                    url: "/Teacher/ReadedMessages",
+                    type: "POST",
+                    data: data,
+                    success: function (res) {
+                        $.each(res, function (i, item) {
+                            console.log(item.messageSentTime)
+                            $("#messageTableBody").append("<tr time='" + item.messageSentTime + "' number='" + item.studentNumber + "'><td>" + item.studentName + "</td><td>" + item.studentNumber + "</td><td>" + item.studentClass + "</td><td>" + String(item.messageSentTime).replace("T","") + "</td><td studentNumber='" + item.studentNumber + "'> " + isMessageRead(item.isRead) + "</td></tr>")
+
+                        })
+                    }
+                })
+
+            }
+           
+
+            function isMessageRead(_data) {
+
+                if (_data) {
+
+                    return "<i class='fas fa-check'></i>"
+                }
+                else {
+                    return "<i class='fas fa-times'></i>"
+                }
+            }
+
+
+
+
+    </script>
+
+}
+

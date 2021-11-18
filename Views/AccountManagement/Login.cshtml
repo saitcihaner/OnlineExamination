@@ -1,0 +1,149 @@
+﻿
+@{
+    Layout = null;
+
+}
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.20.0/css/mdb.min.css" integrity="sha512-hj9rznBPdFg9A4fACbJcp4ttzdinMDtPrtZ3gBD11DiY3O1xJfn0r1U5so/J0zwfGOzq9teIaH5rFmjFAFw8SA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="vh-100">
+
+        <div class="container-fluid h-custom">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-md-9 col-lg-6 col-xl-5">
+                    <img src="~/images/avel-chuklanov-DUmFLtMeAbQ-unsplash.jpg" class="img-fluid"
+                         alt="Sample image">
+                </div>
+                <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+
+
+                    <!-- Email input -->
+                    <div class="form-outline mb-4">
+                        <input type="email" id="EmailAdress" class="form-control form-control-lg"
+                               placeholder="Enter a valid email address"  />
+                        <label class="form-label">Email address</label>
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-outline mb-3">
+                        <input type="password" id="Password" class="form-control form-control-lg"
+                               placeholder="Enter password" />
+                        <label class="form-label">Password</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- Checkbox -->
+                        <div class="form-check mb-0">
+                            <input class="form-check-input me-2" type="checkbox" value="" />
+                            <label class="form-check-label">
+                                Remember me
+                            </label>
+                        </div>
+                        <a asp-action="ForgotPassword" class="text-body text-danger">Forgot password?</a>
+                    </div>
+
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        <button type="button" class="btn btn-primary btn-lg"
+                                style="padding-left: 2.5rem; padding-right: 2.5rem;"
+                                onclick="Login()">
+                            Login
+                        </button>
+                        <p class="small fw-bold mt-2 pt-1 mb-0">
+                            Don't have an account? <a asp-action="Register"
+                                                      class="link-danger">Register</a>
+                        </p>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.20.0/js/mdb.min.js" integrity="sha512-XFd1m0eHgU1F05yOmuzEklFHtiacLVbtdBufAyZwFR0zfcq7vc6iJuxerGPyVFOXlPGgM8Uhem9gwzMI8SJ5uw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        //function ValidateEmail(email) {
+
+        //            var expr = "/^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/";
+        //    if (!expr.test(email)) {
+        //        return false;
+        //    }
+        //    else
+        //        return true;
+        //}
+
+
+        function Login() {
+            //if (!ValidateEmail($("#EmailAdress").val())) {
+            //    Swal.fire({
+            //        icon: 'error',
+            //        title: 'Oops...',
+            //        text: 'Your Email is not valid.Please enter valid email',
+
+            //    })
+            //    return;
+            //}
+           
+            var data = {
+                "ID": 0,
+                "Email": $("#EmailAdress").val(),
+                "Password": $("#Password").val()
+               
+
+            }
+
+            $.ajax({
+                url: "/AccountManagement/Login",
+                type: "POST",
+                dataType: "JSON",
+                data: data,
+                success: function (res) {
+                    if (res.status) {
+
+                        if (res.userType=="Teacher") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thank you..',
+                                text: res.message,
+
+                            })
+                            window.location.href = "/Teacher/MainPage"
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thank you..',
+                                text: res.message,
+
+                            })
+                            window.location.href = "/Student/ExamList"
+                        }
+
+
+                    }
+                    else
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: res.message,
+
+                        })
+                }
+            })
+        }
+
+    </script>
+</body>
+</html>
